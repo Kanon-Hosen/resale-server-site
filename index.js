@@ -40,16 +40,23 @@ app.get('/category', async (req, res) => {
 
 const AllCar = client.db('unicar').collection('allcar');
 app.post('/allcar', async (req, res) => {
-    const car = req.body;
+    const car = req.body; 
     const allcar = await AllCar.insertOne(car);
-    if (allcar.acknowledged) {
         res.send(allcar)
-    }
-    else {
-        res.send([])
-    }
 })
 
+app.get('/mycar', async (req, res) => {
+    const email = req.query?.email;
+    console.log("🚀 ~ file: index.js ~ line 50 ~ app.get ~ email", email)
+    const car = await AllCar.find({email:email}).toArray();
+    res.send({car:car});
+})
+
+app.get('/category/:name', async (req, res) => {
+    const name = req.params.name;
+    const carCta = await AllCar.find({ category: name }).toArray();
+    res.send(carCta)
+})
 // ! Server Start:::::::::::::::
 app.get('/', (req, res) => {
     res.send("Server Stared Successfully");
