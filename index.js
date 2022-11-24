@@ -57,6 +57,17 @@ app.get('/category/:name', async (req, res) => {
     const carCta = await AllCar.find({ category: name }).toArray();
     res.send(carCta)
 })
+//? Book now all details::::::::::::::::::
+const BookNow = client.db('unicar').collection('allbook');
+app.post('/booknow', async (req, res) => {
+    const allDetails = req.body;
+    const bookAll = await BookNow.insertOne(allDetails);
+    res.send({
+        succes: true,
+        message: "Successfull",
+        data :bookAll
+    })
+})
 // ! Server Start:::::::::::::::
 app.get('/', (req, res) => {
     res.send("Server Stared Successfully");
