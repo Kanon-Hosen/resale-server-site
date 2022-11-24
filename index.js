@@ -59,14 +59,46 @@ app.get('/category/:name', async (req, res) => {
 })
 //? Book now all details::::::::::::::::::
 const BookNow = client.db('unicar').collection('allbook');
+const Users = client.db('unicar').collection('users')
+
 app.post('/booknow', async (req, res) => {
+    const name = req.query.name;
     const allDetails = req.body;
+    const allbooking = await BookNow.findOne({ carName: name });
+    if (allbooking) {
+        return res.send([]);
+    }
     const bookAll = await BookNow.insertOne(allDetails);
     res.send({
         succes: true,
         message: "Successfull",
         data :bookAll
     })
+})
+
+//? Find MY orders who buyer and seller ::::::::::::::::::::
+app.get('/myorder/:email', async (req, res) => {
+    const email = req.params.email;
+            const user = await Users.findOne({ email:email});
+            if (user?.accountType === 'Seller') {
+                const allorders = await BookNow.find({ sellerEmail: email }).toArray();
+                return res.send(allorders);
+            } 
+                const allorders = await BookNow.find({ buyerEmail: email }).toArray();
+                return res.send(allorders);
+})
+
+// ? Users Collections :::::::::::::::::::::::
+app.post('/users', async (req, res) => {
+    const userDetails = req.body;
+    const user = await Users.insertOne(userDetails);
+    res.status(200).send(user);
+})
+// ? Get user :::::::::::::::::::::::::::::::::
+app.get('/user/:email', async (req, res) => {
+    const email = req.params.email;
+    const user = await Users.findOne({ email: email });
+    res.send(user)
 })
 // ! Server Start:::::::::::::::
 app.get('/', (req, res) => {
