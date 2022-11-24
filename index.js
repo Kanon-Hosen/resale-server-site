@@ -62,12 +62,13 @@ const BookNow = client.db('unicar').collection('allbook');
 const Users = client.db('unicar').collection('users')
 
 app.post('/booknow', async (req, res) => {
-    const name = req.query.name;
+    // const name = req.query.name;
     const allDetails = req.body;
-    const allbooking = await BookNow.findOne({ carName: name });
-    if (allbooking) {
-        return res.send([]);
-    }
+    // const allbooking = await BookNow.findOne({ buyerName: name });
+    // console.log("🚀 ~ file: index.js ~ line 68 ~ app.post ~ allbooking", allbooking)
+    // if (allbooking) {
+    //     return res.send([]);
+    // }
     const bookAll = await BookNow.insertOne(allDetails);
     res.send({
         succes: true,
@@ -98,6 +99,10 @@ app.post('/users', async (req, res) => {
 app.get('/user/:email', async (req, res) => {
     const email = req.params.email;
     const user = await Users.findOne({ email: email });
+    res.send(user)
+})
+app.get('/users', async (req, res) => {
+    const user = await Users.find({}).toArray();
     res.send(user)
 })
 // ! Server Start:::::::::::::::
