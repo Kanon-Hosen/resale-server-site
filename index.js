@@ -61,13 +61,14 @@ app.put('/mycar/:id', async (req, res) => {
 // ? Advertise products colloctions:::::::::::::
 const Advertise = client.db('unicar').collection('advertise');
 app.post('/advertise', async (req, res) => {
-    const item = req.body;
+    const item = req?.body;
+    const getItem = await Advertise.find({ _id: ObjectId(item._id) });
+    if (getItem) {
+        return res.send(false);
+    }
     const advertise = await Advertise.insertOne(item);
-    res.send({
-        succes: true,
-        message: "Successfull"
-    });
-})
+    return res.send(true);
+});
 
 app.get('/advertise', async (req, res) => {
     const advertise = await Advertise.find({}).toArray();
@@ -76,7 +77,7 @@ app.get('/advertise', async (req, res) => {
         message: "Successfull Loaded",
         data: advertise
     })
-})
+});
 
 app.get('/category/:name', async (req, res) => {
     const name = req.params.name;
@@ -111,8 +112,8 @@ app.get('/myorder/:email', async (req, res) => {
                 const allorders = await BookNow.find({ sellerEmail: email }).toArray();
                 return res.send(allorders);
             } 
-                const allorders = await BookNow.find({ buyerEmail: email }).toArray();
-                return res.send(allorders);
+                const orders = await BookNow.find({ buyerEmail: email }).toArray();
+                return res.send(orders);
 })
 
 // ? Users Collections :::::::::::::::::::::::
@@ -123,7 +124,7 @@ app.post('/users', async (req, res) => {
 })
 // ? Get user :::::::::::::::::::::::::::::::::
 app.get('/user/:email', async (req, res) => {
-    const email = req.params.email;
+    const email = req?.params?.email;
     const user = await Users.findOne({ email: email });
     res.send(user)
 })
