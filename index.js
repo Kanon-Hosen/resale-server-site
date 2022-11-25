@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const app = express();
@@ -47,9 +47,35 @@ app.post('/allcar', async (req, res) => {
 
 app.get('/mycar', async (req, res) => {
     const email = req.query?.email;
-    console.log("🚀 ~ file: index.js ~ line 50 ~ app.get ~ email", email)
     const car = await AllCar.find({email:email}).toArray();
     res.send({car:car});
+})
+
+app.put('/mycar/:id', async (req, res) => {
+    const id = req.params.id;
+    const carSold = await AllCar.updateOne({ _id: ObjectId(id) }, { $set: { "status": "sold" } }, { upsert: true });
+    console.log("🚀 ~ file: index.js ~ line 57 ~ app.put ~ status", carSold)
+    res.send(carSold);
+})
+
+// ? Advertise products colloctions:::::::::::::
+const Advertise = client.db('unicar').collection('advertise');
+app.post('/advertise', async (req, res) => {
+    const item = req.body;
+    const advertise = await Advertise.insertOne(item);
+    res.send({
+        succes: true,
+        message: "Successfull"
+    });
+})
+
+app.get('/advertise', async (req, res) => {
+    const advertise = await Advertise.find({}).toArray();
+    res.send({
+        succes: true,
+        message: "Successfull Loaded",
+        data: advertise
+    })
 })
 
 app.get('/category/:name', async (req, res) => {
