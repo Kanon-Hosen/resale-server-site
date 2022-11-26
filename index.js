@@ -189,6 +189,11 @@ app.delete('/mycar/:id', async (req, res) => {
   const carDelete = await AllCar.deleteOne({ _id: ObjectId(id) });
   res.send(carDelete);
 })
+app.put('/mycar', async (req, res) => {
+  const email = req.query.email;
+  const carUp = await AllCar.updateOne({ email: email }, {$set:{"verify": true}}, {upsert:true});
+  res.send(carUp);
+})
 
 // ? Users Collections :::::::::::::::::::::::
 app.post("/users", async (req, res) => {
@@ -206,6 +211,11 @@ app.get("/users", async (req, res) => {
   const user = await Users.find({}).toArray();
   res.send(user);
 });
+app.put('/users/:id', async(req, res) => {
+  const id = req.params.id;
+  const user = await Users.updateOne({ _id: ObjectId(id) }, { $set: { "verify": true } }, { upsert: true });
+  res.send(user);
+})
 // ! Server Start:::::::::::::::
 app.get("/", (req, res) => {
   res.send("Server Stared Successfully");
