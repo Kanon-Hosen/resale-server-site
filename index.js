@@ -44,7 +44,6 @@ const verifyJWT = (req, res, next) => {
 app.post("/jwt", async (req, res) => {
   const user = req.body;
   const token = jwt.sign(user, process.env.SCREET_KEY, { expiresIn: "2h" });
-  console.log("🚀 ~ file: index.js ~ line 29 ~ app.post ~ token", token);
   res.send({
     succes: true,
     message: "Successfull",
@@ -90,14 +89,8 @@ app.get("/mycar", verifyJWT, async (req, res) => {
   res.send({ car: car });
 });
 
-app.put("/mycar/:id", verifyJWT, async (req, res) => {
+app.put("/mycar/:id", async (req, res) => {
   const id = req.params.id;
-  const decoded = req.decoded.email;
-  const email = req.query?.email;
-
-  if (decoded !== email) {
-    return res.status(401).send([]);
-  }
   const carSold = await AllCar.updateOne(
     { _id: ObjectId(id) },
     { $set: { status: "sold" } },
@@ -110,22 +103,19 @@ app.put("/mycar/:id", verifyJWT, async (req, res) => {
 // ? Advertise products colloctions:::::::::::::
 const Advertise = client.db("unicar").collection("advertise");
 app.post("/advertise/:id", verifyJWT, async (req, res) => {
+  try {
     const item = req?.body;
-    // console.log("🚀 ~ file: index.js ~ line 114 ~ app.post ~ item", item)
     const decoded = req.decoded.email;
     const email = req.query?.email;
     const id = req.params.id;
-    console.log("🚀 ~ file: index.js ~ line 118 ~ app.post ~ id", id)
     if (decoded !== email) {
        return res.status(401).send([])
     }
-//   const getItem = await Advertise.find({_id: ObjectId(id)}).toArray();
-//   console.log("🚀 ~ file: index.js ~ line 121 ~ app.post ~ getItem", getItem)
-//   if (getItem) {
-//     return res.send([]);
-//   }
   const advertise = await Advertise.insertOne(item);
   return res.send(advertise);
+  } catch (error) {
+    res.send(false)
+  }
 });
 
 app.get("/advertise", async (req, res) => {
@@ -137,6 +127,14 @@ app.get("/advertise", async (req, res) => {
   });
 });
 
+// ? Delete advertise item:::::::::::::::::::::::::
+app.delete('/advertise/:id', async (req, res) => {
+  const id = req.params?.id;
+  console.log("🚀 ~ file: index.js ~ line 134 ~ app.delete ~ id", id)
+  const delteAdd = await Advertise?.deleteOne({ _id: ObjectId(id) });
+  console.log("🚀 ~ file: index.js ~ line 136 ~ app.delete ~ delteAdd", delteAdd)
+  res.send(delteAdd);
+})
 app.get("/category/:name", async (req, res) => {
   const name = req.params.name;
   const carCta = await AllCar.find({ category: name }).toArray();
@@ -170,7 +168,7 @@ app.post("/booknow", verifyJWT, async (req, res) => {
 
 //? Find MY orders who buyer and seller ::::::::::::::::::::
 app.get("/myorder/:email", verifyJWT, async (req, res) => {
-    const email = req.params.email;
+    const email = req.params?.email;
     const decoded = req.decoded.email;
 
     if (decoded !== email) {
@@ -184,6 +182,13 @@ app.get("/myorder/:email", verifyJWT, async (req, res) => {
   const orders = await BookNow.find({ buyerEmail: email }).toArray();
   return res.send(orders);
 });
+
+// ? Car Delete:::::::::::::::::::::::::::::::
+app.delete('/mycar/:id', async (req, res) => {
+  const id = req.params.id;
+  const carDelete = await AllCar.deleteOne({ _id: ObjectId(id) });
+  res.send(carDelete);
+})
 
 // ? Users Collections :::::::::::::::::::::::
 app.post("/users", async (req, res) => {
