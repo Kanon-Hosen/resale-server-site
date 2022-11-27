@@ -216,6 +216,31 @@ app.put('/users/:id', async(req, res) => {
   const user = await Users.updateOne({ _id: ObjectId(id) }, { $set: { "verify": true } }, { upsert: true });
   res.send(user);
 })
+
+// ? Report Car item :::::::::::::::::
+const Report = client.db('unicar').collection('report');
+app.post('/report', async (req, res) => {
+  const body = req.body;
+  const report = await Report.insertOne(body);
+  res.send(report);
+})
+app.get('/report', async (req, res) => {
+  const report = await Report.find({}).toArray();
+  res.send(report);
+})
+app.delete("/report/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log("🚀 ~ file: index.js ~ line 233 ~ app.delete ~ id", id)
+  const report = await Report.deleteOne({ _id: ObjectId(id) });
+  console.log("🚀 ~ file: index.js ~ line 234 ~ app.delete ~ report", report)
+  res.send(report);
+})
+// ? Delete User::::::::::::::::::
+app.delete('/user', async (req, res) => {
+  const email = req.query.email;
+  const user = await Users.deleteOne({ email: email });
+  res.send(user);
+})
 // ! Server Start:::::::::::::::
 app.get("/", (req, res) => {
   res.send("Server Stared Successfully");
